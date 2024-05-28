@@ -1,0 +1,61 @@
+type Query {
+  getAuthor(authorId: ID!): Author
+  getBook(bookId: ID!): Book
+  getGenre(genreId: ID!): Genre
+  listAuthors: [Author]
+  listBooks: [Book]
+  listGenres: [Genre]
+  listBooksSortByGenders: [BooksGender]
+}
+type Mutation {
+  putAuthor(authorId: ID!, input: AuthorInput!): MutationResponse
+  deleteAuthor(authorId: ID!): MutationResponse
+  putBook(bookId: ID!, input: BookInput!): MutationResponse
+  deleteBook(bookId: ID!): MutationResponse
+  putGenre(genreId: ID!, input: GenreInput!): MutationResponse
+  deleteGenre(genreId: ID!): MutationResponse
+}
+type MutationResponse {
+  statusCode: Int!
+  message: String!
+}
+type Author {
+  authorId: ID
+  firstName: String
+  lastName: String
+  dateOfBirth: String
+  rut: String
+  books: [Book]
+}
+type Book {
+  bookId: ID
+  title: String
+  publicationDate: String
+  author: Author?
+  genres: [Genre]?
+}
+type Genre {
+  genreId: ID
+  name: String
+  books: [Book]?
+}
+type BooksGender {
+  genreId: ID
+  name: String
+  books: [Book]
+}
+input AuthorInput {
+  firstName: String
+  lastName: String
+  dateOfBirth: String
+  rut: String
+}
+input BookInput {
+  title: String
+  publicationDate: String
+  authorId: ID
+  genreIds: [ID]
+}
+input GenreInput {
+  name: String
+}

@@ -1,0 +1,15 @@
+{
+  "name": "get_books_sort_by_genders",
+  "version": "1.0.0",
+  "description": "Get books sort by genders",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "SAM CLI",
+  "licence": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "aws-sdk": "^2.1618.0"
+  }
+}

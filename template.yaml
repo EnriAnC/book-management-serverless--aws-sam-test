@@ -1,0 +1,349 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: |
+  lambda-nodejs20.x
+  Sample SAM Template for lambda-nodejs20.x
+
+Resources:
+  #Roles
+  RoleAppSyncLambda:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: appsync.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: allow-access-to-lambda-from-appsync
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: lambda:invokeFunction
+                Resource:
+                  - !Sub arn:aws:lambda:${AWS::Region}:*:*
+
+  RoleAppSyncDynamoDB:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${APIName}-dynamodb-policy
+      ManagedPolicyArns:
+        - !Ref PolicyDynamoDB
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Principal:
+              Service:
+                - appsync.amazonaws.com
+
+  PolicyDynamoDB:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Path: /appsync/
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - dynamodb:GetItem
+              - dynamodb:PutItem
+              - dynamodb:DeleteItem
+              - dynamodb:Query
+              - dynamodb:Scan
+            Resource:
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${BookManagementTable}
+
+  BMUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: BMUserPool
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+      UsernameAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: false
+          RequireNumbers: false
+          RequireSymbols: false
+          RequireUppercase: false
+
+  BMUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: BMAppClient
+      UserPoolId: !Ref BMUserPool
+      GenerateSecret: false
+      RefreshTokenValidity: 30
+
+  # FUNCTIONS----------------------------------------------------------------------------------------------------------------
+  GetBooksSortByGenderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Get books order by gender
+      Runtime: nodejs20.x
+      Handler: index.handler
+      CodeUri: functions/getBooksSortByGender
+      Timeout: 10
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BookManagementTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref BookManagementTable
+  # END FUNCTIONS----------------------------------------------------------------------------------------------------------------
+
+  BMGraphQLAPI:
+    Type: AWS::Serverless::GraphQLApi
+    Properties:
+      SchemaUri: schema.graphql
+      Auth:
+        Type: AMAZON_COGNITO_USER_POOLS
+        UserPool:
+          UserPoolId: !GetAtt BMUserPool.UserPoolId
+          AwsRegion: !Sub ${AWS::Region}
+          DefaultAction: ALLOW
+      ApiKeys:
+        BMApiKey:
+          Description: BM api key
+      DataSources:
+        DynamoDb:
+          BMDataSource:
+            TableName: !Ref BookManagementTable
+            TableArn: !GetAtt BookManagementTable.Arn
+        Lambda:
+          BMLamdaDataSource:
+            FunctionArn: !GetAtt GetBooksSortByGenderFunction.Arn
+      Functions:
+        # Resolvers
+        # Author
+        listAuthorsInTable:
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+          DataSource: BMDataSource
+          CodeUri: resolvers/listAuthors.js
+        getAuthorInfo:
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+          DataSource: BMDataSource
+          CodeUri: resolvers/getAuthor.js
+        putAuthorInTable:
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+          DataSource: BMDataSource
+          CodeUri: resolvers/putAuthor.js
+        deleteAuthorInTable:
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+          DataSource: BMDataSource
+          CodeUri: resolvers/deleteAuthor.js
+
+        # Book
+        listBooksInTable:
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+          DataSource: BMDataSource
+          CodeUri: resolvers/listBooks.js
+        getBookInfo:
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+          DataSource: BMDataSource
+          CodeUri: resolvers/getBook.js
+        putBookInTable:
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+          DataSource: BMDataSource
+          CodeUri: resolvers/putBook.js
+        deleteBookInTable:
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+          DataSource: BMDataSource
+          CodeUri: resolvers/deleteBook.js
+
+        # Genre
+        listGenresInTable:
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+          DataSource: BMDataSource
+          CodeUri: resolvers/listGenres.js
+        getGenreInfo:
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+          DataSource: BMDataSource
+          CodeUri: resolvers/getGenre.js
+        putGenreInTable:
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+          DataSource: BMDataSource
+          CodeUri: resolvers/putGenre.js
+        deleteGenreInTable:
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+          DataSource: BMDataSource
+          CodeUri: resolvers/deleteGenre.js
+
+        # Lambda invoker
+        lambdaInvoker:
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+          DataSource: BMLamdaDataSource
+          CodeUri: gql/invoker.js
+
+      Resolvers:
+        Mutation:
+          # Author
+          putAuthor:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - putAuthorInTable
+          deleteAuthor:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - deleteAuthorInTable
+
+          # Book
+          putBook:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - putBookInTable
+          deleteBook:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - deleteBookInTable
+
+          # Genre
+          putGenre:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - putGenreInTable
+          deleteGenre:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - deleteGenreInTable
+        Query:
+          # Author
+          getAuthor:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - getAuthorInfo
+          listAuthors:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - listAuthorsInTable
+
+          # Book
+          getBook:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - getBookInfo
+          listBooks:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - listBooksInTable
+
+          # Author
+          getGenre:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - getGenreInfo
+          listGenres:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - listGenresInTable
+
+          # Lambdas function
+          # Books and Genre
+          listBooksSortByGenders:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - lambdaInvoker
+
+  BookManagementTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: BookManagementTable
+      KeySchema:
+        - AttributeName: entityId
+          KeyType: HASH # Clave de partición
+        - AttributeName: entityType
+          KeyType: RANGE # Clave de ordenación
+      AttributeDefinitions:
+        - AttributeName: entityId
+          AttributeType: S # Tipo de atributo: String
+        - AttributeName: entityType
+          AttributeType: S # Tipo de atributo: String
+      BillingMode: PAY_PER_REQUEST
+
+Parameters:
+  APIName:
+    Type: String
+    Default: bm-epac-api
+
+Outputs:
+  BMGraphQLAPI:
+    Description: AppSync API
+    Value: !GetAtt BMGraphQLAPI.GraphQLUrl
+  BMGraphQLAPIBMApiKey:
+    Description: AppSync API Key
+    Value: !GetAtt BMGraphQLAPIBMApiKey.ApiKey
+  UserPoolId:
+    Description: User Pool ID
+    Value: !Ref BMUserPool
+  UserPoolClientId:
+    Description: User Pool Client ID
+    Value: !Ref BMUserPoolClient
+  Region:
+    Description: AWS Region
+    Value: !Ref AWS::Region
+  AccountId:
+    Description: AWS Account ID
+    Value: !Ref AWS::AccountId
