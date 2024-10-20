@@ -1,4 +1,4 @@
-import { util } from "@aws-appsync/utils";
+import { DynamoDBGetItemRequest, util } from "@aws-appsync/utils";
 
 export function request(ctx) {
   return dynamoDBGetItemRequest({ authorId: ctx.args.authorId });
@@ -11,12 +11,12 @@ export function response(ctx) {
 /**
  * A helper function to get a DynamoDB item
  */
-function dynamoDBGetItemRequest(key) {
+function dynamoDBGetItemRequest({ authorId }: { authorId: string }) {
   return {
     operation: "GetItem",
     key: util.dynamodb.toMapValues({
-      entityId: "AUTHOR",
-      entityType: "AUTHOR#"+key.authorId,
+      PK: "AUTHOR#" + authorId,
+      SK: "METADATA#AUTHOR",
     }),
-  };
+  } as DynamoDBGetItemRequest;
 }

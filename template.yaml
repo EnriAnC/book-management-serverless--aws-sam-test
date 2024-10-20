@@ -22,9 +22,9 @@ Resources:
             Version: 2012-10-17
             Statement:
               - Effect: Allow
-                Action: lambda:invokeFunction
+                Action: lambda:InvokeFunction
                 Resource:
-                  - !Sub arn:aws:lambda:${AWS::Region}:*:*
+                  - !GetAtt GetBooksSortByGenderFunction.Arn
 
   RoleAppSyncDynamoDB:
     Type: AWS::IAM::Role
@@ -122,8 +122,9 @@ Resources:
             TableName: !Ref BookManagementTable
             TableArn: !GetAtt BookManagementTable.Arn
         Lambda:
-          BMLamdaDataSource:
+          GetBooksAndGendersDataSource:
             FunctionArn: !GetAtt GetBooksSortByGenderFunction.Arn
+            # ServiceRoleArn: !GetAtt RoleAppSyncLambda.Arn 
       Functions:
         # Resolvers
         # Author
@@ -132,25 +133,25 @@ Resources:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: BMDataSource
-          CodeUri: resolvers/listAuthors.js
+          CodeUri: resolvers/build/listAuthors.js
         getAuthorInfo:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: BMDataSource
-          CodeUri: resolvers/getAuthor.js
+          CodeUri: resolvers/build/getAuthor.js
         putAuthorInTable:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: BMDataSource
-          CodeUri: resolvers/putAuthor.js
+          CodeUri: resolvers/build/putAuthor.js
         deleteAuthorInTable:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: BMDataSource
-          CodeUri: resolvers/deleteAuthor.js
+          CodeUri: resolvers/build/deleteAuthor.js
 
         # Book
         listBooksInTable:
@@ -158,25 +159,31 @@ Resources:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: BMDataSource
-          CodeUri: resolvers/listBooks.js
+          CodeUri: resolvers/build/listBooks.js
         getBookInfo:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: BMDataSource
-          CodeUri: resolvers/getBook.js
+          CodeUri: resolvers/build/getBook.js
         putBookInTable:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: BMDataSource
-          CodeUri: resolvers/putBook.js
+          CodeUri: resolvers/build/putBook.js
         deleteBookInTable:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: BMDataSource
-          CodeUri: resolvers/deleteBook.js
+          CodeUri: resolvers/build/deleteBook.js
+        deleteBookRelationsInTable:
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+          DataSource: BMDataSource
+          CodeUri: resolvers/build/deleteBookRelations.js
 
         # Genre
         listGenresInTable:
@@ -184,77 +191,56 @@ Resources:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: BMDataSource
-          CodeUri: resolvers/listGenres.js
+          CodeUri: resolvers/build/listGenres.js
         getGenreInfo:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: BMDataSource
-          CodeUri: resolvers/getGenre.js
+          CodeUri: resolvers/build/getGenre.js
         putGenreInTable:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: BMDataSource
-          CodeUri: resolvers/putGenre.js
+          CodeUri: resolvers/build/putGenre.js
         deleteGenreInTable:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: BMDataSource
-          CodeUri: resolvers/deleteGenre.js
+          CodeUri: resolvers/build/deleteGenre.js
+        deleteGenreRelationsInTable:
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+          DataSource: BMDataSource
+          CodeUri: resolvers/build/deleteGenreRelations.js
+
+        # Author and Books
+        getAuthorBooksInTable:
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+          DataSource: BMDataSource
+          CodeUri: resolvers/build/getAuthorBooks.js
+
+        getAuthorBooksMetadataInTable:
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+          DataSource: BMDataSource
+          CodeUri: resolvers/build/getAuthorBooksMetadata.js
 
         # Lambda invoker
         lambdaInvoker:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
-          DataSource: BMLamdaDataSource
+          DataSource: GetBooksAndGendersDataSource
           CodeUri: gql/invoker.js
 
       Resolvers:
-        Mutation:
-          # Author
-          putAuthor:
-            Runtime:
-              Name: APPSYNC_JS
-              Version: 1.0.0
-            Pipeline:
-              - putAuthorInTable
-          deleteAuthor:
-            Runtime:
-              Name: APPSYNC_JS
-              Version: 1.0.0
-            Pipeline:
-              - deleteAuthorInTable
-
-          # Book
-          putBook:
-            Runtime:
-              Name: APPSYNC_JS
-              Version: 1.0.0
-            Pipeline:
-              - putBookInTable
-          deleteBook:
-            Runtime:
-              Name: APPSYNC_JS
-              Version: 1.0.0
-            Pipeline:
-              - deleteBookInTable
-
-          # Genre
-          putGenre:
-            Runtime:
-              Name: APPSYNC_JS
-              Version: 1.0.0
-            Pipeline:
-              - putGenreInTable
-          deleteGenre:
-            Runtime:
-              Name: APPSYNC_JS
-              Version: 1.0.0
-            Pipeline:
-              - deleteGenreInTable
         Query:
           # Author
           getAuthor:
@@ -298,6 +284,15 @@ Resources:
             Pipeline:
               - listGenresInTable
 
+          # Author and Books
+          getAuthorAndBooks:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - getAuthorBooksInTable
+              - getAuthorBooksMetadataInTable
+
           # Lambdas function
           # Books and Genre
           listBooksSortByGenders:
@@ -307,21 +302,75 @@ Resources:
             Pipeline:
               - lambdaInvoker
 
+        Mutation:
+          # Author
+          putAuthor:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - putAuthorInTable
+          deleteAuthor:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - deleteAuthorInTable
+
+          # Book
+          putBook:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - putBookInTable
+          deleteBook:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - deleteBookInTable
+              - deleteBookRelationsInTable
+
+          # Genre
+          putGenre:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - putGenreInTable
+          deleteGenre:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - deleteGenreInTable
+              - deleteGenreRelationsInTable
+
   BookManagementTable:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: BookManagementTable
       KeySchema:
-        - AttributeName: entityId
+        - AttributeName: PK
           KeyType: HASH # Clave de partición
-        - AttributeName: entityType
+        - AttributeName: SK
           KeyType: RANGE # Clave de ordenación
       AttributeDefinitions:
-        - AttributeName: entityId
+        - AttributeName: PK
           AttributeType: S # Tipo de atributo: String
-        - AttributeName: entityType
+        - AttributeName: SK
           AttributeType: S # Tipo de atributo: String
       BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: InverseIndex
+          KeySchema:
+            - AttributeName: SK
+              KeyType: HASH
+            - AttributeName: PK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
 
 Parameters:
   APIName:

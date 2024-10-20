@@ -1,0 +1,18 @@
+{
+  "type": "module",
+  "scripts": {
+    "lint": "npx eslint src/*.ts",
+    "build": "npx esbuild src/*.ts --bundle --outdir=build --external:\"@aws-appsync/utils\" --format=esm --platform=node --target=esnext --sourcemap=inline --sources-content=false"
+  },
+  "dependencies": {
+    "@aws-appsync/eslint-plugin": "^1.6.0",
+    "@aws-appsync/utils": "1.9.0"
+  },
+  "devDependencies": {
+    "@aws-amplify/cli": "^12.12.6",
+    "@types/eslint": "^9.6.0",
+    "@typescript-eslint/parser": "^8.0.1",
+    "esbuild": "^0.23.0",
+    "typescript": "^5.5.4"
+  }
+}
