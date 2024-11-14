@@ -1,6 +1,6 @@
 import { util, Context } from "@aws-appsync/utils";
 import * as ddb from "@aws-appsync/utils/dynamodb";
-import { GetGenreQueryVariables } from "./models/API";
+import { GetGenreQueryVariables } from "../../graphql/models/API";
 
 export function request(ctx: Context<GetGenreQueryVariables>) {
   const { genreId } = ctx.args;

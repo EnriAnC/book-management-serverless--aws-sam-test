@@ -1,6 +1,6 @@
 import { Context, util } from "@aws-appsync/utils";
 import * as ddb from "@aws-appsync/utils/dynamodb";
-import { PutAuthorMutationVariables } from "./models/API";
+import { PutAuthorMutationVariables } from "../../graphql/models/API";
 
 export function request(ctx: Context<PutAuthorMutationVariables>) {
   const authorId = ctx.args.authorId || util.autoId();

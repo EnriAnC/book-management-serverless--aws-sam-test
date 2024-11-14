@@ -1,6 +1,9 @@
 import { Context, DynamoDBBatchPutItemRequest, util } from "@aws-appsync/utils";
 import * as ddb from "@aws-appsync/utils/dynamodb";
-import { PutBookMutation, PutBookMutationVariables } from "./models/API";
+import {
+  PutBookMutation,
+  PutBookMutationVariables,
+} from "../../graphql/models/API";
 
 export function request(ctx: Context<PutBookMutationVariables>) {
   const bookId = ctx.args.bookId || util.autoId();

@@ -1,6 +1,6 @@
 import { Context, util } from "@aws-appsync/utils";
 import * as ddb from "@aws-appsync/utils/dynamodb";
-import { PutGenreMutationVariables } from "./models/API";
+import { PutGenreMutationVariables } from "../../graphql/models/API";
 
 export function request(ctx: Context<PutGenreMutationVariables>) {
   const genreId = ctx.args.genreId || util.autoId();

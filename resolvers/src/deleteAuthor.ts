@@ -1,8 +1,8 @@
 import { Context, DynamoDBDeleteItemRequest, util } from "@aws-appsync/utils";
-import { DeleteAuthorMutationVariables } from "./models/API";
+import { DeleteAuthorsMutationVariables } from "../../graphql/models/API";
 
-export function request(ctx: Context<DeleteAuthorMutationVariables>) {
-  return batchDeleteItemsRequest(ctx.args.authorId);
+export function request(ctx: Context<DeleteAuthorsMutationVariables>) {
+  return batchDeleteItemsRequest(ctx.args.authorIds[0]);
 }
 
 export function response(ctx: Context) {

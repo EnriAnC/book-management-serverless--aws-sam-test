@@ -1,12 +1,12 @@
 import { util, Context } from "@aws-appsync/utils";
 import * as ddb from "@aws-appsync/utils/dynamodb";
-import { DeleteGenreMutationVariables } from "./models/API";
+import { DeleteGenresMutationVariables } from "../../graphql/models/API";
 
-export function request(ctx: Context<DeleteGenreMutationVariables>) {
-  const { genreId } = ctx.args;
+export function request(ctx: Context<DeleteGenresMutationVariables>) {
+  const { genreIds } = ctx.args;
   return ddb.remove({
     key: {
-      PK: `GENRE#${genreId}`,
+      PK: `GENRE#${genreIds[0]}`,
       SK: "METADATA#GENRE",
     },
   });

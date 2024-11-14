@@ -1,6 +1,9 @@
 import { Context, util } from "@aws-appsync/utils";
 import * as ddb from "@aws-appsync/utils/dynamodb";
-import { ListGenresQuery, ListGenresQueryVariables } from "./models/API";
+import {
+  ListGenresQuery,
+  ListGenresQueryVariables,
+} from "../../graphql/models/API";
 
 export function request(ctx: Context<ListGenresQueryVariables>) {
   return ddb.query({

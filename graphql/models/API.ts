@@ -72,12 +72,12 @@ export type PutAuthorMutation = {
   } | null,
 };
 
-export type DeleteAuthorMutationVariables = {
-  authorId: string,
+export type DeleteAuthorsMutationVariables = {
+  authorIds: Array< string | null >,
 };
 
-export type DeleteAuthorMutation = {
-  deleteAuthor?:  {
+export type DeleteAuthorsMutation = {
+  deleteAuthors?:  {
     __typename: "MutationResponse",
     statusCode: number,
     message: string,
@@ -99,12 +99,12 @@ export type PutBookMutation = {
   } | null,
 };
 
-export type DeleteBookMutationVariables = {
-  bookId: string,
+export type DeleteBooksMutationVariables = {
+  bookIds: Array< string | null >,
 };
 
-export type DeleteBookMutation = {
-  deleteBook?:  {
+export type DeleteBooksMutation = {
+  deleteBooks?:  {
     __typename: "MutationResponse",
     statusCode: number,
     message: string,
@@ -124,12 +124,12 @@ export type PutGenreMutation = {
   } | null,
 };
 
-export type DeleteGenreMutationVariables = {
-  genreId: string,
+export type DeleteGenresMutationVariables = {
+  genreIds: Array< string | null >,
 };
 
-export type DeleteGenreMutation = {
-  deleteGenre?:  {
+export type DeleteGenresMutation = {
+  deleteGenres?:  {
     __typename: "MutationResponse",
     statusCode: number,
     message: string,

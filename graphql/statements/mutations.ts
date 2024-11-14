@@ -22,16 +22,16 @@ export const putAuthor = /* GraphQL */ `mutation PutAuthor($authorId: ID!, $inpu
   APITypes.PutAuthorMutationVariables,
   APITypes.PutAuthorMutation
 >;
-export const deleteAuthor = /* GraphQL */ `mutation DeleteAuthor($authorId: ID!) {
-  deleteAuthor(authorId: $authorId) {
+export const deleteAuthors = /* GraphQL */ `mutation DeleteAuthors($authorIds: [ID]!) {
+  deleteAuthors(authorIds: $authorIds) {
     statusCode
     message
     __typename
   }
 }
 ` as GeneratedMutation<
-  APITypes.DeleteAuthorMutationVariables,
-  APITypes.DeleteAuthorMutation
+  APITypes.DeleteAuthorsMutationVariables,
+  APITypes.DeleteAuthorsMutation
 >;
 export const putBook = /* GraphQL */ `mutation PutBook($bookId: ID!, $input: BookInput!) {
   putBook(bookId: $bookId, input: $input) {
@@ -46,16 +46,16 @@ export const putBook = /* GraphQL */ `mutation PutBook($bookId: ID!, $input: Boo
   APITypes.PutBookMutationVariables,
   APITypes.PutBookMutation
 >;
-export const deleteBook = /* GraphQL */ `mutation DeleteBook($bookId: ID!) {
-  deleteBook(bookId: $bookId) {
+export const deleteBooks = /* GraphQL */ `mutation DeleteBooks($bookIds: [ID]!) {
+  deleteBooks(bookIds: $bookIds) {
     statusCode
     message
     __typename
   }
 }
 ` as GeneratedMutation<
-  APITypes.DeleteBookMutationVariables,
-  APITypes.DeleteBookMutation
+  APITypes.DeleteBooksMutationVariables,
+  APITypes.DeleteBooksMutation
 >;
 export const putGenre = /* GraphQL */ `mutation PutGenre($genreId: ID!, $input: GenreInput!) {
   putGenre(genreId: $genreId, input: $input) {
@@ -68,14 +68,14 @@ export const putGenre = /* GraphQL */ `mutation PutGenre($genreId: ID!, $input: 
   APITypes.PutGenreMutationVariables,
   APITypes.PutGenreMutation
 >;
-export const deleteGenre = /* GraphQL */ `mutation DeleteGenre($genreId: ID!) {
-  deleteGenre(genreId: $genreId) {
+export const deleteGenres = /* GraphQL */ `mutation DeleteGenres($genreIds: [ID]!) {
+  deleteGenres(genreIds: $genreIds) {
     statusCode
     message
     __typename
   }
 }
 ` as GeneratedMutation<
-  APITypes.DeleteGenreMutationVariables,
-  APITypes.DeleteGenreMutation
+  APITypes.DeleteGenresMutationVariables,
+  APITypes.DeleteGenresMutation
 >;

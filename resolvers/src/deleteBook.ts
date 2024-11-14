@@ -1,12 +1,12 @@
 import { util, Context } from "@aws-appsync/utils";
 import * as ddb from "@aws-appsync/utils/dynamodb";
-import { DeleteBookMutationVariables } from "./models/API";
+import { DeleteBooksMutationVariables } from "../../graphql/models/API";
 
-export function request(ctx: Context<DeleteBookMutationVariables>) {
-  const { bookId } = ctx.args;
+export function request(ctx: Context<DeleteBooksMutationVariables>) {
+  const { bookIds } = ctx.args;
   return ddb.remove({
     key: {
-      PK: `BOOK#${bookId}`,
+      PK: `BOOK#${bookIds[0]}`,
       SK: "METADATA#BOOK",
     },
   });
