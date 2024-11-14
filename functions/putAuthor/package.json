@@ -1,0 +1,5 @@
+{
+	"scripts": {
+    "build": "npx esbuild src/index.ts --target=node20.0 --outfile=build/index.mjs"
+  }
+}

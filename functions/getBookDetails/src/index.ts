@@ -1,33 +1,36 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
-  QueryCommand
+  GetCommand,
+  GetCommandInput,
 } from "@aws-sdk/lib-dynamodb";
-const client = new DynamoDBClient(process.env.REGION);
+import { AppSyncEvent } from "../../models";
+
+const client = new DynamoDBClient(process.env.REGION!);
 const docClient = DynamoDBDocumentClient.from(client);
+
 const TABLE_NAME = process.env.TABLE_NAME;
-exports.handler = async (event) => {
+
+export const handler = async (event: AppSyncEvent<{ bookId: string }>) => {
   console.log("Received event: ", JSON.stringify(event, null, 2));
+
   try {
-    const booksParams = {
+    // Consulta para obtener los libros
+    const booksParams: GetCommandInput = {
       TableName: TABLE_NAME,
-      IndexName: "InverseIndex",
-      KeyConditionExpression: "#PK = :PK AND begins_with(#SK, :SK)",
-      ExpressionAttributeNames: {
-        "#PK": "PK",
-        "#SK": "SK"
+      Key: {
+        PK: "BOOK#" + event.arguments.bookId,
+        SK: "METADATA#BOOK",
       },
-      ExpressionAttributeValues: {
-        ":PK": "GENRE#" + event.genreId,
-        ":SK": "METADATA#BOOK"
-      }
     };
-    const commandBooks = new QueryCommand(booksParams);
+
+    const commandBooks = new GetCommand(booksParams);
     console.log("commandBooks: ", commandBooks);
     const booksData = await docClient.send(commandBooks);
     console.log("booksData: ", booksData);
-    const books = booksData.Items;
+    const books = booksData.Item;
     console.log("books: ", books);
+    if (!books) throw Error("No existe el libro con el id indicado.");
     return books;
   } catch (error) {
     console.error("Error fetching data: ", error);

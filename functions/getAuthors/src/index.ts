@@ -1,34 +1,40 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
-  QueryCommand
+  QueryCommand,
+  QueryCommandInput,
 } from "@aws-sdk/lib-dynamodb";
+
 const client = new DynamoDBClient(process.env.REGION);
 const docClient = DynamoDBDocumentClient.from(client);
+
 const TABLE_NAME = process.env.TABLE_NAME;
-exports.handler = async (event) => {
+
+export const handler = async (event) => {
   console.log("Received event: ", JSON.stringify(event, null, 2));
+
   try {
-    const booksParams = {
+    // Consulta para obtener los libros
+    const authorsParams: QueryCommandInput = {
       TableName: TABLE_NAME,
       IndexName: "InverseIndex",
-      KeyConditionExpression: "#PK = :PK AND begins_with(#SK, :SK)",
+      KeyConditionExpression: "#SK = :SK",
       ExpressionAttributeNames: {
-        "#PK": "PK",
-        "#SK": "SK"
+        "#SK": "SK",
       },
       ExpressionAttributeValues: {
-        ":PK": "GENRE#" + event.genreId,
-        ":SK": "METADATA#BOOK"
-      }
+        ":SK": "METADATA#AUTHOR",
+      },
     };
-    const commandBooks = new QueryCommand(booksParams);
-    console.log("commandBooks: ", commandBooks);
-    const booksData = await docClient.send(commandBooks);
-    console.log("booksData: ", booksData);
-    const books = booksData.Items;
-    console.log("books: ", books);
-    return books;
+
+    const commandAuthors = new QueryCommand(authorsParams);
+    console.log("commandAuthors: ", commandAuthors);
+    const authorsData = await docClient.send(commandAuthors);
+    console.log("authorsData: ", authorsData);
+    const authors = authorsData.Items;
+    console.log("authors: ", authors);
+
+    return authors;
   } catch (error) {
     console.error("Error fetching data: ", error);
     throw new Error("Could not load items");

@@ -10,11 +10,11 @@ type Query {
 }
 type Mutation {
   putAuthor(authorId: ID!, input: AuthorInput!): Author
-  deleteAuthor(authorId: ID!): MutationResponse
+  deleteAuthors(authorIds: [ID]!): MutationResponse
   putBook(bookId: ID!, input: BookInput!): Book
-  deleteBook(bookId: ID!): MutationResponse
+  deleteBooks(bookIds: [ID]!): MutationResponse
   putGenre(genreId: ID!, input: GenreInput!): Genre
-  deleteGenre(genreId: ID!): MutationResponse
+  deleteGenres(genreIds: [ID]!): MutationResponse
 }
 type MutationResponse {
   statusCode: Int!
