@@ -9,7 +9,6 @@
     "@aws-appsync/utils": "1.9.0"
   },
   "devDependencies": {
-    "@aws-amplify/cli": "^12.12.6",
     "@types/eslint": "^9.6.0",
     "@typescript-eslint/parser": "^8.0.1",
     "esbuild": "^0.23.0",
