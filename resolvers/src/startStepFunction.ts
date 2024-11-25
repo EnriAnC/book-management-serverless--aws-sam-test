@@ -1,17 +1,16 @@
-import { Context } from "@aws-appsync/utils";
-
-export function request(ctx: Context) {
+import { util } from "@aws-appsync/utils";
+export function request(ctx) {
   return {
     version: "2018-05-29",
     method: "POST",
     resourcePath: "/",
     params: {
       headers: {
-        "Content-Type": "application/x-amz-json-1.1",
-        "x-amz-target": "AWSStepFunctions.StartExecution",
+        "Content-Type": "application/x-amz-json-1.0",
+        "x-amz-target": "AWSStepFunctions.StartSyncExecution",
       },
       body: {
-        stateMachineArn: process.env.STATE_MACHINE_ARN,
+        stateMachineArn: ctx.stash.stateMachineArn,
         input: JSON.stringify({
           field: ctx.info.fieldName,
           arguments: ctx.args,
@@ -24,8 +23,9 @@ export function request(ctx: Context) {
 }
 
 export function response(ctx) {
-  if (ctx.error) {
-    throw new Error(ctx.error.message);
+  const { error, result } = ctx;
+  if (error) {
+    return util.appendError(error.message, error.type, result);
   }
   return ctx.result;
 }

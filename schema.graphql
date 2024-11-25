@@ -6,7 +6,6 @@ type Query {
   listAuthors: [Author]
   listBooks: [Book]
   listGenres: [Genre]
-  listBooksSortByGenders: [BooksGender]
 }
 type Mutation {
   putAuthor(authorId: ID!, input: AuthorInput!): MutationResponse

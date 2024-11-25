@@ -32,7 +32,7 @@
 								"action": "create",
 								"tableName": "BookManagementTable",
 								"recordKey": {
-									"SK": "METADATA#BOOK"
+									"PK.$": "States.Format('BOOK#{}', $.arguments.bookId)"
 								},
 								"value.$": "$.arguments",
 								"username.$": "$.identity.username",
