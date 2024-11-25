@@ -1,5 +1,30 @@
 # Prueba de Backend Serverless con AWS SAM
 
+## Instalación y Build del Proyecto
+
+Antes de realizar el despliegue con `sam build --guided`, es necesario hacer el build de los Resolvers y Lambdas, ya que el proyecto está desarrollado en TypeScript y los archivos de build no se encuentran en este repositorio.
+
+Para facilitar este proceso, se incluye un script `build-lambdas-resolvers.sh` que realiza los siguientes pasos de manera automática:
+
+1. **Verificación de dependencias**: El script primero verifica si los módulos de Node.js están instalados en las carpetas `./functions` y `./resolvers`.
+2. **Instalación de dependencias**: Si los módulos no están instalados, el script ejecuta `pnpm install` en cada carpeta correspondiente.
+3. **Ejecución del Build**: Una vez las dependencias estén instaladas (si es necesario), el script ejecuta el build de cada Lambda y resolver.
+
+Este enfoque automatiza el proceso y garantiza que las dependencias estén correctamente instaladas antes de proceder con la construcción del proyecto.
+
+Para ejecutar el script, puede correr en la terminal el siguiente comando en la raíz del proyecto:
+
+Para sistemas Unix (Linux, macOS):
+```bash
+sh build-lambdas-resolvers.sh
+```
+
+Para sistemas Windows:
+```bash
+.\build-lambdas-resolvers.sh
+```
+
+
 ## Introducción
 Esta prueba está diseñada para evaluar conocimientos teóricos y prácticos en AWS, incluyendo DynamoDB, Cognito, Lambda, Step Functions y AppSync. El objetivo final es desarrollar una API para gestionar una base de datos de libros y autores, implementando operaciones CRUD y relaciones entre entidades.
 
