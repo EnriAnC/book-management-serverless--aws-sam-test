@@ -1,8 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: |
-  lambda-nodejs20.x
-  Sample SAM Template for lambda-nodejs20.x
+  book management serverless application
 
 Resources:
   #Roles
@@ -429,23 +428,6 @@ Resources:
           TABLE_NAME: !Ref BookManagementTable
           REGION: !Ref AWS::Region
 
-  # SaveBookFunction:
-  #   Type: AWS::Serverless::Function
-  #   Properties:
-  #     Description: Save book
-  #     Runtime: go1.x
-  #     Handler: SaveBook
-  #     CodeUri: functions/SaveBook
-  #     Timeout: 10
-  #     MemorySize: 128
-  #     Policies:
-  #       - DynamoDBCrudPolicy:
-  #           TableName: !Ref BookManagementTable
-  #     Environment:
-  #       Variables:
-  #         TABLE_NAME: !Ref BookManagementTable
-
-
   # RESOLVERS----------------------------------------------------------------------------------------------------------------
   SaveBookResolver:
     Type: AWS::AppSync::Resolver
@@ -546,57 +528,6 @@ Resources:
           DeleteGenresDataSource:
             FunctionArn: !GetAtt DeleteGenresFunction.Arn
       Functions:
-        # StateMachine Workflow
-        # addWorkflowArnToStash:
-        #   Runtime:
-        #       Name: APPSYNC_JS
-        #       Version: 1.0.0
-        #   DataSource: None
-        #   InlineCode: !Sub | 
-        #     export function request(ctx) {
-        #       ctx.stash.stateMachineArn = "${SaveBookStateMachine}";
-        #       return {};
-        #     }
-        #     export function response(ctx) {
-        #       return ctx;
-        #     }
-        # saveBookStateMachine:
-        #   Runtime:
-        #       Name: APPSYNC_JS
-        #       Version: 1.0.0
-        #   DataSource: !GetAtt StepFunctionDataSource.Name
-        #   InlineCode:  |
-        #     import { util } from '@aws-appsync/utils';
-        #     export function request(ctx) { 
-        #       return {
-        #         "version": "2018-05-29",
-        #         "method": "POST",
-        #         "resourcePath": "/",
-        #         "params": {
-        #           "headers": {
-        #             "content-type": "application/x-amz-json-1.0",
-        #             "x-amz-target":"AWSStepFunctions.StartSyncExecution"
-        #           },
-        #           "body": {
-        #             "stateMachineArn": ${saveBookStateMachine},
-        #             "input": JSON.stringify({
-        #               "field": ctx.info.fieldName,
-        #               "arguments": ctx.args,
-        #               "source": ctx.source,
-        #               "identity": ctx.identity
-        #             })
-        #           }
-        #         }
-        #       };
-        #     }
-        #     export function response(ctx) {
-        #       if (ctx.error) util.error(ctx.error.message, ctx.error.type);
-        #       if (ctx.result.statusCode === 200) {
-        #         return JSON.parse(ctx.result.body);
-        #       } else {
-        #         util.appendError(ctx.result.body, ctx.result.statusCode);
-        #       }
-        #     }
         # Author
         listAuthorsInTable:
           Runtime:
@@ -783,12 +714,6 @@ Resources:
               - deleteAuthorInTable
 
           # Book
-          # saveBook:
-          #   Runtime:
-          #     Name: APPSYNC_JS
-          #     Version: 1.0.0
-          #   Pipeline:
-          #     - saveBookStateMachine
           putBook:
             Runtime:
               Name: APPSYNC_JS
