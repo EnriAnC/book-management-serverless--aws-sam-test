@@ -2,7 +2,7 @@
 
 [sync_state]
 dependency_layer = false
-latest_infra_sync_time = "2024-11-25T12:12:21.144550"
+latest_infra_sync_time = "2024-11-25T14:59:14.537583"
 
 [resource_sync_states]
 [resource_sync_states."ZipFunctionSyncFlow:GetBooksSortByGenderFunction"]

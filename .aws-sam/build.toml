@@ -64,15 +64,6 @@ manifest_hash = ""
 packagetype = "Zip"
 functions = ["DeleteGenreBookRelationsFunction"]
 
-[function_build_definitions.9e2bfca9-43d0-4a80-8a96-6bb0f4dc36ab]
-codeuri = "c:\\Users\\EnriA\\Desktop\\Programación\\AWS-SAM\\aws-zenda-test\\book-management-aws\\book-management-serverless\\functions\\getBooksSortByGender\\build"
-runtime = "nodejs20.x"
-architecture = "x86_64"
-handler = "index.handler"
-manifest_hash = ""
-packagetype = "Zip"
-functions = ["GetBooksSortByGenderFunction"]
-
 [function_build_definitions.155ef34b-644e-4c1c-a9ce-9e7c240ae751]
 codeuri = "c:\\Users\\EnriA\\Desktop\\Programación\\AWS-SAM\\aws-zenda-test\\book-management-aws\\book-management-serverless\\functions\\getAuthors\\build"
 runtime = "nodejs20.x"

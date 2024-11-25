@@ -1,8 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: 'lambda-nodejs20.x
-
-  Sample SAM Template for lambda-nodejs20.x
+Description: 'book management serverless application
 
   '
 Resources:
@@ -296,27 +294,6 @@ Resources:
             Ref: AWS::Region
     Metadata:
       SamResourceId: DeleteGenreBookRelationsFunction
-  GetBooksSortByGenderFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Description: Get books order by gender
-      Runtime: nodejs20.x
-      Handler: index.handler
-      CodeUri: GetBooksSortByGenderFunction
-      Timeout: 10
-      MemorySize: 128
-      Policies:
-      - DynamoDBCrudPolicy:
-          TableName:
-            Ref: BookManagementTable
-      Environment:
-        Variables:
-          TABLE_NAME:
-            Ref: BookManagementTable
-          REGION:
-            Ref: AWS::Region
-    Metadata:
-      SamResourceId: GetBooksSortByGenderFunction
   GetAuthorsFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -567,11 +544,6 @@ Resources:
               - BookManagementTable
               - Arn
         Lambda:
-          GetBooksAndGendersDataSource:
-            FunctionArn:
-              Fn::GetAtt:
-              - GetBooksSortByGenderFunction
-              - Arn
           GetBooksDataSource:
             FunctionArn:
               Fn::GetAtt:

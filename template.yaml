@@ -258,23 +258,6 @@ Resources:
           TABLE_NAME: !Ref BookManagementTable
           REGION: !Ref AWS::Region
 
-  GetBooksSortByGenderFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Description: Get books order by gender
-      Runtime: nodejs20.x
-      Handler: index.handler
-      CodeUri: functions/getBooksSortByGender/build
-      Timeout: 10
-      MemorySize: 128
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref BookManagementTable
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref BookManagementTable
-          REGION: !Ref AWS::Region
-
   GetAuthorsFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -495,8 +478,6 @@ Resources:
             TableName: !Ref BookManagementTable
             TableArn: !GetAtt BookManagementTable.Arn
         Lambda:
-          GetBooksAndGendersDataSource:
-            FunctionArn: !GetAtt GetBooksSortByGenderFunction.Arn
           GetBooksDataSource:
             FunctionArn: !GetAtt GetBooksFunction.Arn
           GetBookDetailsDataSource:
