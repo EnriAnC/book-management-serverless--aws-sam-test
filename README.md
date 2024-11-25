@@ -192,3 +192,7 @@ Cada función Lambda es responsable de una tarea específica. Las funciones CRUD
 ### 4. **Step Functions**
 
 El flujo de trabajo de Step Functions (`SaveBookStateMachine`) maneja la creación de un libro, la asociación de géneros, y la auditoría de las operaciones. Este flujo orquestado permite que las acciones sean secuenciales y fáciles de gestionar.
+
+## Visualización Infraestructura
+
+![application-composer-template yaml](https://github.com/user-attachments/assets/de4a81e7-a679-4f5d-b269-0aa924f0c252)
