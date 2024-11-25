@@ -1,20 +1,7 @@
 version = 0.1
-
-[default.deploy.parameters]
-s3_bucket = "s3-bucket-epac-bm"
-capabilities = "CAPABILITY_IAM CAPABILITY_AUTO_EXPAND CAPABILITY_NAMED_IAM"
-disable_rollback = false
-resolve_s3 = true
-s3_prefix = "bm-epac-sa"
-parameter_overrides = 'APIName="bm-epac-api"'
-image_repositories = [ ]
-
 [default.sync.parameters]
-template_file = "c:\\Users\\EnriA\\Desktop\\Programaci�n\\AWS-SAM\\aws-zenda-test\\book-management-aws\\book-management-serverless\\template.yaml"
+template_file = "template.yaml"
 s3_bucket = "s3-bucket-epac-bm"
+stack_name = "bm-epac-sa"
 dependency_layer = false
 watch = false
-
-[default.global.parameters]
-stack_name = "bm-epac-sa"
-region = "sa-east-1"
