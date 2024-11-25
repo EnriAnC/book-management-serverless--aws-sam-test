@@ -497,18 +497,16 @@ Resources:
         - StepFunctionDataSource
         - Name
       Code: "import { util } from '@aws-appsync/utils';\nexport function request(ctx)\
-        \ {\n    return {\n        \"version\": \"2018-05-29\",\n        \"method\"\
-        : \"POST\",\n        \"resourcePath\": \"/\",\n        \"params\": {\n   \
-        \         \"headers\": {\n                \"Content-Type\": \"application/x-amz-json-1.0\"\
-        ,\n                \"x-amz-target\": \"AWSStepFunctions.StartSyncExecution\"\
-        \n            },\n            \"body\": {\n                \"stateMachineArn\"\
-        : ctx.env.SaveBookStateMachineArn,\n                \"input\": JSON.stringify({\n\
-        \                    field: ctx.info.fieldName,\n                    arguments:\
-        \ ctx.args,\n                    source: ctx.source,\n                   \
-        \ identity: ctx.identity\n                })\n            }\n        }\n \
-        \   }\n}\n\nexport function response(ctx) {\n    const { error, result } =\
-        \ ctx;\n    if (error) {\n        return util.appendError(error.message, error.type,\
-        \ result);\n    }\n    return ctx.result;\n}\n"
+        \ {\n  return {\n    \"version\": \"2018-05-29\",\n    \"method\": \"POST\"\
+        ,\n    \"resourcePath\": \"/\",\n    \"params\": {\n      \"headers\": {\n\
+        \        \"Content-Type\": \"application/x-amz-json-1.0\",\n        \"x-amz-target\"\
+        : \"AWSStepFunctions.StartSyncExecution\"\n      },\n      \"body\": {\n \
+        \       \"stateMachineArn\": ctx.env.SaveBookStateMachineArn,\n        \"\
+        input\": JSON.stringify({\n          field: ctx.info.fieldName,\n        \
+        \  arguments: ctx.args,\n          source: ctx.source,\n          identity:\
+        \ ctx.identity\n        })\n      }\n    }\n  }\n}\n\nexport function response(ctx)\
+        \ {\n  const { error, result } = ctx;\n  if (error) {\n    return util.appendError(error.message,\
+        \ error.type, result);\n  }\n  return ctx.result;\n}\n"
       Runtime:
         Name: APPSYNC_JS
         RuntimeVersion: 1.0.0
