@@ -25,6 +25,7 @@ export const getBook = /* GraphQL */ `query GetBook($bookId: ID!) {
     title
     publicationDate
     authorId
+    genreIds
     __typename
   }
 }
@@ -43,6 +44,7 @@ export const getAuthorAndBooks = /* GraphQL */ `query GetAuthorAndBooks($authorI
     title
     publicationDate
     authorId
+    genreIds
     __typename
   }
 }
@@ -70,6 +72,7 @@ export const listBooks = /* GraphQL */ `query ListBooks {
     title
     publicationDate
     authorId
+    genreIds
     __typename
   }
 }
@@ -94,6 +97,7 @@ export const listBooksSortByGenders = /* GraphQL */ `query ListBooksSortByGender
       title
       publicationDate
       authorId
+      genreIds
       __typename
     }
     __typename

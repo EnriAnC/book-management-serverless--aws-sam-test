@@ -9,15 +9,6 @@ export type AuthorInput = {
   rut?: string | null,
 };
 
-export type Author = {
-  __typename: "Author",
-  authorId?: string | null,
-  firstName?: string | null,
-  lastName?: string | null,
-  dateOfBirth?: string | null,
-  rut?: string | null,
-};
-
 export type MutationResponse = {
   __typename: "MutationResponse",
   statusCode: number,
@@ -31,16 +22,31 @@ export type BookInput = {
   genreIds?: Array< string | null > | null,
 };
 
+export type GenreInput = {
+  name?: string | null,
+};
+
+export type GenreBookRelationInput = {
+  genreIds?: Array< string | null > | null,
+  bookId?: string | null,
+};
+
+export type Author = {
+  __typename: "Author",
+  authorId?: string | null,
+  firstName?: string | null,
+  lastName?: string | null,
+  dateOfBirth?: string | null,
+  rut?: string | null,
+};
+
 export type Book = {
   __typename: "Book",
   bookId?: string | null,
   title?: string | null,
   publicationDate?: string | null,
   authorId?: string | null,
-};
-
-export type GenreInput = {
-  name?: string | null,
+  genreIds?: Array< string | null > | null,
 };
 
 export type Genre = {
@@ -63,12 +69,9 @@ export type PutAuthorMutationVariables = {
 
 export type PutAuthorMutation = {
   putAuthor?:  {
-    __typename: "Author",
-    authorId?: string | null,
-    firstName?: string | null,
-    lastName?: string | null,
-    dateOfBirth?: string | null,
-    rut?: string | null,
+    __typename: "MutationResponse",
+    statusCode: number,
+    message: string,
   } | null,
 };
 
@@ -91,11 +94,9 @@ export type PutBookMutationVariables = {
 
 export type PutBookMutation = {
   putBook?:  {
-    __typename: "Book",
-    bookId?: string | null,
-    title?: string | null,
-    publicationDate?: string | null,
-    authorId?: string | null,
+    __typename: "MutationResponse",
+    statusCode: number,
+    message: string,
   } | null,
 };
 
@@ -118,9 +119,9 @@ export type PutGenreMutationVariables = {
 
 export type PutGenreMutation = {
   putGenre?:  {
-    __typename: "Genre",
-    genreId?: string | null,
-    name?: string | null,
+    __typename: "MutationResponse",
+    statusCode: number,
+    message: string,
   } | null,
 };
 
@@ -130,6 +131,42 @@ export type DeleteGenresMutationVariables = {
 
 export type DeleteGenresMutation = {
   deleteGenres?:  {
+    __typename: "MutationResponse",
+    statusCode: number,
+    message: string,
+  } | null,
+};
+
+export type DeleteGenreBookRelationsMutationVariables = {
+  input: Array< GenreBookRelationInput | null >,
+};
+
+export type DeleteGenreBookRelationsMutation = {
+  deleteGenreBookRelations?:  {
+    __typename: "MutationResponse",
+    statusCode: number,
+    message: string,
+  } | null,
+};
+
+export type CreateGenreBookRelationsMutationVariables = {
+  input: Array< GenreBookRelationInput | null >,
+};
+
+export type CreateGenreBookRelationsMutation = {
+  createGenreBookRelations?:  {
+    __typename: "MutationResponse",
+    statusCode: number,
+    message: string,
+  } | null,
+};
+
+export type RewriteGenreBookRelationsMutationVariables = {
+  input: Array< GenreBookRelationInput | null >,
+};
+
+export type RewriteGenreBookRelationsMutation = {
+  rewriteGenreBookRelations?:  {
     __typename: "MutationResponse",
     statusCode: number,
     message: string,
@@ -162,6 +199,7 @@ export type GetBookQuery = {
     title?: string | null,
     publicationDate?: string | null,
     authorId?: string | null,
+    genreIds?: Array< string | null > | null,
   } | null,
 };
 
@@ -188,6 +226,7 @@ export type GetAuthorAndBooksQuery = {
     title?: string | null,
     publicationDate?: string | null,
     authorId?: string | null,
+    genreIds?: Array< string | null > | null,
   } | null > | null,
 };
 
@@ -215,6 +254,7 @@ export type ListBooksQuery = {
     title?: string | null,
     publicationDate?: string | null,
     authorId?: string | null,
+    genreIds?: Array< string | null > | null,
   } | null > | null,
 };
 
@@ -243,6 +283,7 @@ export type ListBooksSortByGendersQuery = {
       title?: string | null,
       publicationDate?: string | null,
       authorId?: string | null,
+      genreIds?: Array< string | null > | null,
     } | null > | null,
   } | null > | null,
 };

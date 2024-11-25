@@ -1,27 +1,20 @@
-# More information about the configuration file can be found here:
-# https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-config.html
 version = 0.1
 
-[default]
-[default.global.parameters]
-stack_name = "lambda-nodejs20.x"
-
-[default.build.parameters]
-cached = true
-parallel = true
-
-[default.validate.parameters]
-lint = true
-
 [default.deploy.parameters]
-capabilities = "CAPABILITY_IAM"
-confirm_changeset = true
+s3_bucket = "s3-bucket-epac-bm"
+capabilities = "CAPABILITY_IAM CAPABILITY_AUTO_EXPAND CAPABILITY_NAMED_IAM"
+disable_rollback = false
+resolve_s3 = true
+s3_prefix = "bm-epac-sa"
+parameter_overrides = 'APIName="bm-epac-api"'
+image_repositories = [ ]
 
 [default.sync.parameters]
-watch = true
+template_file = "c:\\Users\\EnriA\\Desktop\\Programaci�n\\AWS-SAM\\aws-zenda-test\\book-management-aws\\book-management-serverless\\template.yaml"
+s3_bucket = "s3-bucket-epac-bm"
+dependency_layer = false
+watch = false
 
-[default.local_start_api.parameters]
-warm_containers = "EAGER"
-
-[default.local_start_lambda.parameters]
-warm_containers = "EAGER"
+[default.global.parameters]
+stack_name = "bm-epac-sa"
+region = "sa-east-1"

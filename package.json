@@ -1,6 +1,6 @@
 {
 	"scripts": {
-    "build-types": "npx amplify codegen --types"
+    "generate-types": "npx amplify codegen --types"
   },
 	"devDependencies": {
 		"@types/node": "^22.9.0",

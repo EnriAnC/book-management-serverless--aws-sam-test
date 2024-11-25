@@ -4,7 +4,7 @@ import {
   BatchWriteCommand,
   BatchWriteCommandInput,
 } from "@aws-sdk/lib-dynamodb";
-import { AppSyncEvent } from "../../models";
+import { AppSyncEvent } from "../../../graphql/models";
 
 const client = new DynamoDBClient(process.env.REGION);
 const docClient = DynamoDBDocumentClient.from(client);

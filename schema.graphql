@@ -9,12 +9,17 @@ type Query {
   listBooksSortByGenders: [BooksGender]
 }
 type Mutation {
-  putAuthor(authorId: ID!, input: AuthorInput!): Author
+  putAuthor(authorId: ID!, input: AuthorInput!): MutationResponse
   deleteAuthors(authorIds: [ID]!): MutationResponse
-  putBook(bookId: ID!, input: BookInput!): Book
+  saveBook(bookId: ID!, input: BookInput!): MutationResponse
+  putBook(bookId: ID!, input: BookInput!): MutationResponse
   deleteBooks(bookIds: [ID]!): MutationResponse
-  putGenre(genreId: ID!, input: GenreInput!): Genre
+  putGenre(genreId: ID!, input: GenreInput!): MutationResponse
   deleteGenres(genreIds: [ID]!): MutationResponse
+
+  deleteGenreBookRelations(input: [GenreBookRelationInput]!): MutationResponse
+  createGenreBookRelations(input: [GenreBookRelationInput]!): MutationResponse
+  rewriteGenreBookRelations(input: [GenreBookRelationInput]!): MutationResponse
 }
 type MutationResponse {
   statusCode: Int!
@@ -32,6 +37,7 @@ type Book {
   title: String
   publicationDate: String
   authorId: String
+  genreIds: [String]
 }
 type Genre {
   genreId: ID
@@ -56,4 +62,8 @@ input BookInput {
 }
 input GenreInput {
   name: String
+}
+input GenreBookRelationInput {
+  genreIds: [ID]
+  bookId: ID
 }

@@ -6,25 +6,6 @@ Description: |
 
 Resources:
   #Roles
-  RoleAppSyncLambda:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: appsync.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: allow-access-to-lambda-from-appsync
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action: lambda:InvokeFunction
-                Resource:
-                  - !GetAtt GetBooksSortByGenderFunction.Arn
 
   RoleAppSyncDynamoDB:
     Type: AWS::IAM::Role
@@ -59,6 +40,52 @@ Resources:
             Resource:
               - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${BookManagementTable}
 
+  StepFunctionsResolverExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: 
+                - appsync.amazonaws.com
+                - states.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: StepFunctionsExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - states:StartSyncExecution
+                Resource:
+                  - !Ref SaveBookStateMachine
+
+  StateMachineLambdaInvokeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: states.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: InvokeLambdaPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: lambda:InvokeFunction
+                Resource:
+                  - !GetAtt PutBookFunction.Arn
+                  - !GetAtt AuditFunction.Arn
+
+
+
   BMUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
@@ -84,6 +111,33 @@ Resources:
       UserPoolId: !Ref BMUserPool
       GenerateSecret: false
       RefreshTokenValidity: 30
+
+  # STEP FUNCTIONS-----------------------------------------------------------------------------------------------------------
+
+  StepFunctionDataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId: !GetAtt BMGraphQLAPI.ApiId
+      Name: StepFunctionDataSource
+      Type: HTTP
+      HttpConfig:
+        Endpoint: !Sub https://sync-states.${AWS::Region}.amazonaws.com
+        AuthorizationConfig:
+          AuthorizationType: AWS_IAM
+          AwsIamConfig:
+            SigningRegion: !Ref AWS::Region
+            SigningServiceName: states
+      ServiceRoleArn: !GetAtt StepFunctionsResolverExecutionRole.Arn
+
+  SaveBookStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Type: EXPRESS
+      DefinitionUri: statemachines/create-book.asl.json
+      DefinitionSubstitutions:
+        PutBookFunctionArn: !GetAtt PutBookFunction.Arn
+        AuditFunctionArn: !GetAtt AuditFunction.Arn
+      Role: !GetAtt StateMachineLambdaInvokeRole.Arn
 
   # FUNCTIONS----------------------------------------------------------------------------------------------------------------
   GetBooksFunction:
@@ -120,6 +174,57 @@ Resources:
           TABLE_NAME: !Ref BookManagementTable
           REGION: !Ref AWS::Region
 
+  PutBookFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Put book
+      Runtime: nodejs20.x
+      Handler: index.handler
+      CodeUri: functions/putBook/build
+      Timeout: 10
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BookManagementTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref BookManagementTable
+          REGION: !Ref AWS::Region
+
+  RewriteGenreBookRelationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Rewrite genre book relations
+      Runtime: nodejs20.x
+      Handler: index.handler
+      CodeUri: functions/rewriteGenreBookRelations/build
+      Timeout: 10
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BookManagementTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref BookManagementTable
+          REGION: !Ref AWS::Region
+
+  CreateGenreBookRelationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Create genre book relations
+      Runtime: nodejs20.x
+      Handler: index.handler
+      CodeUri: functions/createGenreBookRelations/build
+      Timeout: 10
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BookManagementTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref BookManagementTable
+          REGION: !Ref AWS::Region
+
   DeleteBooksFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -127,6 +232,23 @@ Resources:
       Runtime: nodejs20.x
       Handler: index.handler
       CodeUri: functions/deleteBooks/build
+      Timeout: 10
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BookManagementTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref BookManagementTable
+          REGION: !Ref AWS::Region
+
+  DeleteGenreBookRelationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Delete genre book relations
+      Runtime: nodejs20.x
+      Handler: index.handler
+      CodeUri: functions/deleteGenreBookRelations/build
       Timeout: 10
       MemorySize: 128
       Policies:
@@ -188,6 +310,23 @@ Resources:
           TABLE_NAME: !Ref BookManagementTable
           REGION: !Ref AWS::Region
 
+  PutAuthorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Put Author
+      Runtime: nodejs20.x
+      Handler: index.handler
+      CodeUri: functions/putAuthor/build
+      Timeout: 10
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BookManagementTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref BookManagementTable
+          REGION: !Ref AWS::Region
+
   DeleteAuthorsFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -239,6 +378,23 @@ Resources:
           TABLE_NAME: !Ref BookManagementTable
           REGION: !Ref AWS::Region
 
+  PutGenreFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Put Genre
+      Runtime: nodejs20.x
+      Handler: index.handler
+      CodeUri: functions/putGenre/build
+      Timeout: 10
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BookManagementTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref BookManagementTable
+          REGION: !Ref AWS::Region
+
   DeleteGenresFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -246,6 +402,23 @@ Resources:
       Runtime: nodejs20.x
       Handler: index.handler
       CodeUri: functions/deleteGenres/build
+      Timeout: 10
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BookManagementTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref BookManagementTable
+          REGION: !Ref AWS::Region
+
+  AuditFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Audit function
+      Runtime: nodejs20.x
+      Handler: index.handler
+      CodeUri: functions/audit/build
       Timeout: 10
       MemorySize: 128
       Policies:
@@ -272,6 +445,51 @@ Resources:
   #       Variables:
   #         TABLE_NAME: !Ref BookManagementTable
 
+
+  # RESOLVERS----------------------------------------------------------------------------------------------------------------
+  SaveBookResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !GetAtt BMGraphQLAPI.ApiId
+      TypeName: Mutation
+      FieldName: saveBook
+      DataSourceName: !GetAtt StepFunctionDataSource.Name
+      Code: |
+            import { util } from '@aws-appsync/utils';
+            export function request(ctx) {
+                return {
+                    "version": "2018-05-29",
+                    "method": "POST",
+                    "resourcePath": "/",
+                    "params": {
+                        "headers": {
+                            "Content-Type": "application/x-amz-json-1.0",
+                            "x-amz-target": "AWSStepFunctions.StartSyncExecution"
+                        },
+                        "body": {
+                            "stateMachineArn": ctx.env.SaveBookStateMachineArn,
+                            "input": JSON.stringify({
+                                field: ctx.info.fieldName,
+                                arguments: ctx.args,
+                                source: ctx.source,
+                                identity: ctx.identity
+                            })
+                        }
+                    }
+                }
+            }
+        
+            export function response(ctx) {
+                const { error, result } = ctx;
+                if (error) {
+                    return util.appendError(error.message, error.type, result);
+                }
+                return ctx.result;
+            }
+      Runtime:
+          Name: APPSYNC_JS
+          RuntimeVersion: 1.0.0
+
   # END FUNCTIONS----------------------------------------------------------------------------------------------------------------
 
   BMGraphQLAPI:
@@ -287,6 +505,8 @@ Resources:
       ApiKeys:
         BMApiKey:
           Description: BM api key
+      EnvironmentVariables:
+        SaveBookStateMachineArn: !GetAtt SaveBookStateMachine.Arn
       DataSources:
         DynamoDb:
           BMDataSource:
@@ -295,52 +515,113 @@ Resources:
         Lambda:
           GetBooksAndGendersDataSource:
             FunctionArn: !GetAtt GetBooksSortByGenderFunction.Arn
-            # ServiceRoleArn: !GetAtt RoleAppSyncLambda.Arn 
           GetBooksDataSource:
             FunctionArn: !GetAtt GetBooksFunction.Arn
           GetBookDetailsDataSource:
             FunctionArn: !GetAtt GetBookDetailsFunction.Arn
+          PutBookDataSource:
+            FunctionArn: !GetAtt PutBookFunction.Arn
+          CreateGenreBookRelationsDataSource:
+            FunctionArn: !GetAtt CreateGenreBookRelationsFunction.Arn
+          RewriteGenreBookRelationsDataSource:
+            FunctionArn: !GetAtt RewriteGenreBookRelationsFunction.Arn
           DeleteBooksDataSource:
             FunctionArn: !GetAtt DeleteBooksFunction.Arn
+          DeleteGenreBookRelationsDataSource:
+            FunctionArn: !GetAtt DeleteGenreBookRelationsFunction.Arn
           GetAuthorsDataSource:
             FunctionArn: !GetAtt GetAuthorsFunction.Arn
           GetAuthorDetailsDataSource:
             FunctionArn: !GetAtt GetAuthorDetailsFunction.Arn
+          PutAuthorDataSource:
+            FunctionArn: !GetAtt PutAuthorFunction.Arn
           DeleteAuthorsDataSource:
             FunctionArn: !GetAtt DeleteAuthorsFunction.Arn
           GetGenresDataSource:
             FunctionArn: !GetAtt GetGenresFunction.Arn
           GetGenreDetailsDataSource:
             FunctionArn: !GetAtt GetGenreDetailsFunction.Arn
+          PutGenreDataSource:
+            FunctionArn: !GetAtt PutGenreFunction.Arn
           DeleteGenresDataSource:
             FunctionArn: !GetAtt DeleteGenresFunction.Arn
       Functions:
-        # Resolvers
+        # StateMachine Workflow
+        # addWorkflowArnToStash:
+        #   Runtime:
+        #       Name: APPSYNC_JS
+        #       Version: 1.0.0
+        #   DataSource: None
+        #   InlineCode: !Sub | 
+        #     export function request(ctx) {
+        #       ctx.stash.stateMachineArn = "${SaveBookStateMachine}";
+        #       return {};
+        #     }
+        #     export function response(ctx) {
+        #       return ctx;
+        #     }
+        # saveBookStateMachine:
+        #   Runtime:
+        #       Name: APPSYNC_JS
+        #       Version: 1.0.0
+        #   DataSource: !GetAtt StepFunctionDataSource.Name
+        #   InlineCode:  |
+        #     import { util } from '@aws-appsync/utils';
+        #     export function request(ctx) { 
+        #       return {
+        #         "version": "2018-05-29",
+        #         "method": "POST",
+        #         "resourcePath": "/",
+        #         "params": {
+        #           "headers": {
+        #             "content-type": "application/x-amz-json-1.0",
+        #             "x-amz-target":"AWSStepFunctions.StartSyncExecution"
+        #           },
+        #           "body": {
+        #             "stateMachineArn": ${saveBookStateMachine},
+        #             "input": JSON.stringify({
+        #               "field": ctx.info.fieldName,
+        #               "arguments": ctx.args,
+        #               "source": ctx.source,
+        #               "identity": ctx.identity
+        #             })
+        #           }
+        #         }
+        #       };
+        #     }
+        #     export function response(ctx) {
+        #       if (ctx.error) util.error(ctx.error.message, ctx.error.type);
+        #       if (ctx.result.statusCode === 200) {
+        #         return JSON.parse(ctx.result.body);
+        #       } else {
+        #         util.appendError(ctx.result.body, ctx.result.statusCode);
+        #       }
+        #     }
         # Author
         listAuthorsInTable:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: GetAuthorsDataSource
-          CodeUri: gql/invoker.js
+          CodeUri: resolvers/build/invoker.js
         getAuthorInfo:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: GetAuthorDetailsDataSource
-          CodeUri: gql/invoker.js
+          CodeUri: resolvers/build/invoker.js
         putAuthorInTable:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
-          DataSource: BMDataSource
-          CodeUri: resolvers/build/putAuthor.js
+          DataSource: PutAuthorDataSource
+          CodeUri: resolvers/build/invoker.js
         deleteAuthorInTable:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: DeleteAuthorsDataSource
-          CodeUri: gql/invoker.js
+          CodeUri: resolvers/build/invoker.js
 
         # Book
         listBooksInTable:
@@ -348,31 +629,43 @@ Resources:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: GetBooksDataSource
-          CodeUri: gql/invoker.js
+          CodeUri: resolvers/build/invoker.js
         getBookInfo:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: GetBookDetailsDataSource
-          CodeUri: gql/invoker.js
+          CodeUri: resolvers/build/invoker.js
         putBookInTable:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
-          DataSource: BMDataSource
-          CodeUri: resolvers/build/putBook.js
+          DataSource: PutBookDataSource
+          CodeUri: resolvers/build/invoker.js
+        rewriteGenreBookRelationsInTable:
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+          DataSource: RewriteGenreBookRelationsDataSource
+          CodeUri: resolvers/build/invoker.js
+        createGenreBookRelationsInTable:
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+          DataSource: CreateGenreBookRelationsDataSource
+          CodeUri: resolvers/build/invoker.js
         deleteBookInTable:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: DeleteBooksDataSource
-          CodeUri: gql/invoker.js
-        deleteBookRelationsInTable:
+          CodeUri: resolvers/build/invoker.js
+        deleteGenreBookRelationsInTable:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
-          DataSource: BMDataSource
-          CodeUri: resolvers/build/deleteBookRelations.js
+          DataSource: DeleteGenreBookRelationsDataSource
+          CodeUri: resolvers/build/invoker.js
 
         # Genre
         listGenresInTable:
@@ -380,25 +673,25 @@ Resources:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: GetGenresDataSource
-          CodeUri: gql/invoker.js
+          CodeUri: resolvers/build/invoker.js
         getGenreInfo:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: GetGenreDetailsDataSource
-          CodeUri: gql/invoker.js
+          CodeUri: resolvers/build/invoker.js
         putGenreInTable:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
-          DataSource: BMDataSource
-          CodeUri: resolvers/build/putGenre.js
+          DataSource: PutGenreDataSource
+          CodeUri: resolvers/build/invoker.js
         deleteGenreInTable:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: DeleteGenresDataSource
-          CodeUri: gql/invoker.js
+          CodeUri: resolvers/build/invoker.js
         deleteGenreRelationsInTable:
           Runtime:
             Name: APPSYNC_JS
@@ -420,14 +713,6 @@ Resources:
             Version: 1.0.0
           DataSource: BMDataSource
           CodeUri: resolvers/build/getAuthorBooksMetadata.js
-
-        # Lambda invoker
-        lambdaInvoker:
-          Runtime:
-            Name: APPSYNC_JS
-            Version: 1.0.0
-          DataSource: GetBooksAndGendersDataSource
-          CodeUri: gql/invoker.js
 
       Resolvers:
         Query:
@@ -482,15 +767,6 @@ Resources:
               - getAuthorBooksInTable
               - getAuthorBooksMetadataInTable
 
-          # Lambdas function
-          # Books and Genre
-          listBooksSortByGenders:
-            Runtime:
-              Name: APPSYNC_JS
-              Version: 1.0.0
-            Pipeline:
-              - lambdaInvoker
-
         Mutation:
           # Author
           putAuthor:
@@ -507,18 +783,42 @@ Resources:
               - deleteAuthorInTable
 
           # Book
+          # saveBook:
+          #   Runtime:
+          #     Name: APPSYNC_JS
+          #     Version: 1.0.0
+          #   Pipeline:
+          #     - saveBookStateMachine
           putBook:
             Runtime:
               Name: APPSYNC_JS
               Version: 1.0.0
             Pipeline:
               - putBookInTable
+          rewriteGenreBookRelations:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - rewriteGenreBookRelationsInTable
+          createGenreBookRelations:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - createGenreBookRelationsInTable
           deleteBooks:
             Runtime:
               Name: APPSYNC_JS
               Version: 1.0.0
             Pipeline:
               - deleteBookInTable
+          deleteGenreBookRelations:
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - deleteGenreBookRelationsInTable
 
           # Genre
           putGenre:

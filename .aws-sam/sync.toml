@@ -2,6 +2,49 @@
 
 [sync_state]
 dependency_layer = false
-latest_infra_sync_time = "2024-08-16T04:02:36.415978"
+latest_infra_sync_time = "2024-11-25T12:12:21.144550"
 
 [resource_sync_states]
+[resource_sync_states."ZipFunctionSyncFlow:GetBooksSortByGenderFunction"]
+hash = "7a58dc5ad65f3a4e777bd77d475f82f1ee3ba2fec944761b2aa6c78a8006edea"
+sync_time = "2024-11-14T04:40:21.720631"
+
+[resource_sync_states."ZipFunctionSyncFlow:GetBooksFunction"]
+hash = "664f105e1a6b5a28188b348a38cff5e532093b9c03261ca2bcbb09948cf97a35"
+sync_time = "2024-11-14T04:40:21.728157"
+
+[resource_sync_states."ZipFunctionSyncFlow:GetAuthorsFunction"]
+hash = "d782084efab79d998c6729679dd4436f1ada0b4846e4d911f04eb85996aa0e64"
+sync_time = "2024-11-14T04:40:21.733206"
+
+[resource_sync_states."ZipFunctionSyncFlow:GetGenreDetailsFunction"]
+hash = "c08240a4f0bd7355dbc87ad6aa3d4135aecd2e1cc7b3cd61be4107c4487bcfa8"
+sync_time = "2024-11-14T04:59:07.150399"
+
+[resource_sync_states."ZipFunctionSyncFlow:GetBookDetailsFunction"]
+hash = "c20abb176a18991d10f3c73f626a6d3770083406acf3f07268093a39ae977596"
+sync_time = "2024-11-14T04:59:07.116753"
+
+[resource_sync_states."ZipFunctionSyncFlow:GetGenresFunction"]
+hash = "851dda354ec28a07b700d5fd216a9db8b557d655c6bfcef1b6fcb7c77e8577aa"
+sync_time = "2024-11-14T04:40:21.751450"
+
+[resource_sync_states."ZipFunctionSyncFlow:GetAuthorDetailsFunction"]
+hash = "497297034fbdfba048d7590c70cb7619bac9164e9ec09b505698285903902fb9"
+sync_time = "2024-11-14T04:59:07.232015"
+
+[resource_sync_states."ZipFunctionSyncFlow:CreateGenreBookRelationsFunction"]
+hash = "8d9e0afdda55bd3b6c934a03ef2964bf7cb36aa9576fb32359599a098eaf7e7e"
+sync_time = "2024-11-20T19:55:22.939594"
+
+[resource_sync_states."ZipFunctionSyncFlow:RewriteGenreBookRelationsFunction"]
+hash = "8046eb4c6ffedbdae0433deb767954519bf66164e3c7936d874ef68c83d5fd2e"
+sync_time = "2024-11-20T15:34:45.606792"
+
+[resource_sync_states."ZipFunctionSyncFlow:DeleteGenreBookRelationsFunction"]
+hash = "6113e12f9e9ca17f4930ae265846b3e41e88124aaa65bdaa64a2a1446e63d530"
+sync_time = "2024-11-20T19:55:23.403233"
+
+[resource_sync_states."ZipFunctionSyncFlow:AuditFunction"]
+hash = "9384debab939fc91524b11814c3bbc4d36d12dfe49edfd5bc2b0e013246ab094"
+sync_time = "2024-11-25T05:00:57.457223"

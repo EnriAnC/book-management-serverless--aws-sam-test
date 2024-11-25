@@ -10,11 +10,8 @@ type GeneratedMutation<InputType, OutputType> = string & {
 
 export const putAuthor = /* GraphQL */ `mutation PutAuthor($authorId: ID!, $input: AuthorInput!) {
   putAuthor(authorId: $authorId, input: $input) {
-    authorId
-    firstName
-    lastName
-    dateOfBirth
-    rut
+    statusCode
+    message
     __typename
   }
 }
@@ -35,10 +32,8 @@ export const deleteAuthors = /* GraphQL */ `mutation DeleteAuthors($authorIds: [
 >;
 export const putBook = /* GraphQL */ `mutation PutBook($bookId: ID!, $input: BookInput!) {
   putBook(bookId: $bookId, input: $input) {
-    bookId
-    title
-    publicationDate
-    authorId
+    statusCode
+    message
     __typename
   }
 }
@@ -59,8 +54,8 @@ export const deleteBooks = /* GraphQL */ `mutation DeleteBooks($bookIds: [ID]!) 
 >;
 export const putGenre = /* GraphQL */ `mutation PutGenre($genreId: ID!, $input: GenreInput!) {
   putGenre(genreId: $genreId, input: $input) {
-    genreId
-    name
+    statusCode
+    message
     __typename
   }
 }
@@ -78,4 +73,37 @@ export const deleteGenres = /* GraphQL */ `mutation DeleteGenres($genreIds: [ID]
 ` as GeneratedMutation<
   APITypes.DeleteGenresMutationVariables,
   APITypes.DeleteGenresMutation
+>;
+export const deleteGenreBookRelations = /* GraphQL */ `mutation DeleteGenreBookRelations($input: [GenreBookRelationInput]!) {
+  deleteGenreBookRelations(input: $input) {
+    statusCode
+    message
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteGenreBookRelationsMutationVariables,
+  APITypes.DeleteGenreBookRelationsMutation
+>;
+export const createGenreBookRelations = /* GraphQL */ `mutation CreateGenreBookRelations($input: [GenreBookRelationInput]!) {
+  createGenreBookRelations(input: $input) {
+    statusCode
+    message
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateGenreBookRelationsMutationVariables,
+  APITypes.CreateGenreBookRelationsMutation
+>;
+export const rewriteGenreBookRelations = /* GraphQL */ `mutation RewriteGenreBookRelations($input: [GenreBookRelationInput]!) {
+  rewriteGenreBookRelations(input: $input) {
+    statusCode
+    message
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.RewriteGenreBookRelationsMutationVariables,
+  APITypes.RewriteGenreBookRelationsMutation
 >;

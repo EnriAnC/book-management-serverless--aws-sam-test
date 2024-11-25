@@ -1,0 +1,51 @@
+{
+	"Comment": "Audit function in parallel",
+	"StartAt": "Audit in parallel",
+	"States": {
+		"Audit in parallel": {
+			"Type": "Parallel",
+			"Branches": [
+				{
+					"StartAt": "CreateBookTask",
+					"States": {
+						"CreateBookTask": {
+							"Type": "Task",
+							"Resource": "${PutBookFunctionArn}",
+							"Parameters": {
+								"field.$": "$.field",
+								"arguments.$": "$.arguments",
+								"source.$": "$.source",
+								"identity.$": "$.identity"
+							},
+							"ResultPath": "$.CreateBookResult",
+							"End": true
+						}
+					}
+				},
+				{
+					"StartAt": "AuditTask",
+					"States": {
+						"AuditTask": {
+							"Type": "Task",
+							"Resource": "${AuditFunctionArn}",
+							"Parameters": {
+								"action": "create",
+								"tableName": "BookManagementTable",
+								"recordKey": {
+									"SK": "METADATA#BOOK"
+								},
+								"value.$": "$.arguments",
+								"username.$": "$.identity.username",
+								"timestamp": null
+							},
+							"ResultPath": "$.AuditResult",
+							"End": true
+						}
+					}
+				}
+			],
+			"ResultPath": "$.CreateBookResult",
+      "End": true
+		}
+	}
+}
