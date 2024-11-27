@@ -43,7 +43,7 @@ Se puede observar la infraestructura de la aplicación en el siguiente diagrama:
 
 Se ha diseñado un modelo Single-Table para gestionar libros, autores y géneros, aprovechando relaciones y consultas eficientes mediante claves de partición (PK), claves de ordenación (SK) e índices secundarios globales (GSI).
 
-## Tablas y Claves Principales
+## Modelo y uso llaves
 
 ### GSIs 
 | GSI             | Descripción           |
